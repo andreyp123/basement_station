@@ -114,7 +114,7 @@ void handleNewMessages(int numNewMessages, Context* ctx)
     // todo: skip too old messages
     
     if (msg.text == "/help")
-      answer = "Available commands: /start, /status, /temp, /hum, /light";
+      answer = "Available commands: /start, /system, /temp, /hum, /light, /wpres";
     else if (msg.text == "/start")
       answer = "Ok, " + msg.from_name + ", let's start! Use /help to see all available commands.";
     else if (msg.text == "/system")
