@@ -79,9 +79,9 @@ String getHtml(Context* ctx)
   html += "<body>";
   html += "  <h1>Basement station</h1>";
   html += "  <p>Temperature: " + String(ctx->sensors->tempC, 1) + " C</p>";
-  html += "  <p>Humidity: " + String(ctx->sensors->humProc, 1) + "%</p>";
-  html += "  <p>Light: " + String(ctx->sensors->ldrRawVal) + "</p>";
-  html += "  <p>Water pressure: " + String(ctx->sensors->wPresOutRawVal) + "</p><br/>";
+  html += "  <p>Humidity: " + String(ctx->sensors->humProc, 1) + " %</p>";
+  html += "  <p>Water pressure: " + String(ctx->sensors->wPresBar, 1) + " bar</p>";
+  html += "  <p>Lightness: " + String(ctx->sensors->ldrRawVal) + "</p><br/>";
   html += "  <p>Start time: " + ctx->startTimeStr + "</p>";
   html += "  <p>Wi-fi signal: " + String(ctx->sensors->wifiRssi) + " dBm</p>";
   html += "</body>";

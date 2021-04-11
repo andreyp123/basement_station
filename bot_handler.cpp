@@ -1,3 +1,4 @@
+#include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 #include "definitions.h"
@@ -5,7 +6,7 @@
 #include "bot_handler.h"
 
 
-const String eventChatId = SEC_USER1_CHAT_ID;
+const String eventChatId = SEC_GROUP_CHAT_ID;
 const String trustedChatIds[] = {
   SEC_GROUP_CHAT_ID,
   SEC_USER1_CHAT_ID,
@@ -64,13 +65,15 @@ void checkEventMessages(Context* ctx)
       continue;
     }
         
-    String botMsg;
+    String botMsg = "";
     if (event.eType == lowLight)
       botMsg = "Low lightness";
     else if (event.eType == normLight)
       botMsg = "Normal lightness";
-    else
-      botMsg = "";
+    else if (event.eType == lowPressure)
+      botMsg = "Low pressure " + String(ctx->sensors->wPresBar, 1) + " bar";
+    else if (event.eType == normPressure)
+      botMsg = "Normal pressure " + String(ctx->sensors->wPresBar, 1) + " bar";
 
     if (botMsg != "")
     {
@@ -118,15 +121,16 @@ void handleNewMessages(int numNewMessages, Context* ctx)
     else if (msg.text == "/start")
       answer = "Ok, " + msg.from_name + ", let's start! Use /help to see all available commands.";
     else if (msg.text == "/system")
-      answer = "Start time: " + ctx->startTimeStr + "\nWi-fi signal: " + String(ctx->sensors->wifiRssi) + " dBM";
+      answer = "Start time: " + ctx->startTimeStr + "\nWi-fi signal: " + String(ctx->sensors->wifiRssi) +
+        " dBM\nSite: http://" + WiFi.localIP().toString();
     else if (msg.text == "/temp")
       answer = "Temperature: " + String(ctx->sensors->tempC, 1) + " C";
     else if (msg.text == "/hum")
-      answer = "Humidity: " + String(ctx->sensors->humProc, 1) + "%";
+      answer = "Humidity: " + String(ctx->sensors->humProc, 1) + " %";
     else if (msg.text == "/light")
       answer = "Lightness [0..4095]: " + String(ctx->sensors->ldrRawVal);
     else if (msg.text == "/wpres")
-      answer = "Water pressure\nInput: ???\nOutput: " + String(ctx->sensors->wPresOutRawVal);
+      answer = "Water pressure: " + String(ctx->sensors->wPresBar, 1) + " bar";
     else
       answer = "";
 

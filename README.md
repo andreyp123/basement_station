@@ -6,9 +6,9 @@ The station is placed in the house basement to measure:
 - temperature
 - humidity
 - lightness
-- water pressure before the pump (aka input pressure)
 - water pressure after the pump (aka output pressure)
-- water pump mode (on/off)
+- water pressure before the pump (aka input pressure) -- TODO
+- water pump mode (on/off) -- TODO
 
 The station hosts web-server to retrieve simple web page containing current measurements.
 
@@ -23,9 +23,9 @@ The project is based on ESP32.
 Pin map: https://raw.githubusercontent.com/espressif/arduino-esp32/master/docs/esp32_pinmap.png
 
 Sensors:
-- DHT11
-- HK1100C
-- LDR ?
+- Temperature/humidity DHT11
+- Water pressure HK1100C
+- LDR GL5516
 
 Platforms and libraries:
 - Arduino IDE

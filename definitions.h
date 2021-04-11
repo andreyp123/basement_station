@@ -9,13 +9,13 @@ struct Sensors
   float tempC;
   float humProc;
   int ldrRawVal;
-  int wPresInRawVal;
-  int wPresOutRawVal;
+  int wPresRawVal;
+  float wPresBar;
 
   String toString() const
   {
     return "sensors: wifi=" + String(wifiRssi) + ", temp=" + String(tempC, 1) + ", hum=" + String(humProc, 1) +
-      ", ldr=" + String(ldrRawVal) + ", wpres_out=" + String(wPresOutRawVal);
+      ", ldr=" + String(ldrRawVal) + ", wpres_raw=" + String(wPresRawVal) + ", wpres_bar=" + String(wPresBar, 1);
   }
 };
 
@@ -42,7 +42,9 @@ enum EventType
 {
   undefined = 0,
   lowLight = 1,
-  normLight = 2
+  normLight = 2,
+  lowPressure = 3,
+  normPressure = 4
 };
 
 struct EventMessage
