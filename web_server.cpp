@@ -6,12 +6,11 @@
 WiFiServer server(WEB_SERVER_PORT);
 
 
-String webServerInit()
+void webServerInit()
 {
   Serial.println("[web] initializing server...");
+  Serial.println("[web] url: " + getWebServerUrl());
   server.begin();
-
-  return "http://" + WiFi.localIP().toString() + ":" + WEB_SERVER_PORT;
 }
 
 String getHtml(Context* ctx)
@@ -89,5 +88,11 @@ void webServerProcess(void* params)
     }
     //
     ctx->systemInfo->wifiRssi = WiFi.RSSI();
+    ctx->systemInfo->serverUrl = getWebServerUrl();
   }
+}
+
+String getWebServerUrl()
+{
+  return "http://" + WiFi.localIP().toString() + ":" + WEB_SERVER_PORT;
 }

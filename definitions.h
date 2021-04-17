@@ -8,11 +8,10 @@ struct SystemInfo
   String serverUrl;
   long wifiRssi;
 
-  SystemInfo(String v, time_t t, String url)
+  SystemInfo(String v, time_t t)
   {
     version = v;
     startTime = t;
-    serverUrl = url;
 
     char strBuf[24];
     strftime(strBuf, sizeof(strBuf), "%Y-%m-%d %H:%M:%S utc", localtime(&startTime));

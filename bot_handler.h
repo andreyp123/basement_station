@@ -5,7 +5,6 @@
 #define CHAT_MESSAGE_TTL 60000 // chat message ttl (in milliseconds). after this time bot will not answer
 #define BOT_PROCESS_DELAY 1000 // timeout between processing bot messages and events
 
-
 void botHandlerInit();
 
 void botHandlerProcess(void* params);

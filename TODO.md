@@ -2,9 +2,9 @@
 
 ## Software
 * skip too old bot messages (skip all on start ?)
-* float round on output (bot, web)
-* reconnet to WiFi
 * mqtt
+* rewrite with classes
+* move time out of ino setup (wifi handler ?)
 
 ## Hardware
 * LCD

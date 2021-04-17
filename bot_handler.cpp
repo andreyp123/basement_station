@@ -83,7 +83,7 @@ void handleNewMessages(int numNewMessages, Context* ctx)
     if (answer != "")
     {
       bot.sendMessage(msg.chat_id, answer, "Markdown");
-      Serial.println("[bot] sent answer to " + String(msg.chat_id) + ": " + answer);
+      Serial.println("[bot] sent answer: " + answer);
     }
   }
 }
