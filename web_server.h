@@ -4,8 +4,6 @@
 #define WEB_SERVER_PROCESS_DELAY 500 // timeout between processing new client connections
 
 
-void webServerInit();
+String webServerInit();
 
 void webServerProcess(void* params);
-
-String getHtml(Context* ctx);

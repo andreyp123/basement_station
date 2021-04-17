@@ -37,16 +37,54 @@ void botHandlerInit()
   botLastTime = millis();
 }
 
-void botHandlerProcess(void* params)
+bool isTrustedChatId(String chatId)
 {
-  Context* ctx = (Context*)params;
-  
-  while (true)
+  for (int i = 0; i < sizeof(trustedChatIds); i++)
+    if (trustedChatIds[i] == chatId)
+      return true;
+  return false;
+}
+
+void handleNewMessages(int numNewMessages, Context* ctx)
+{
+  String answer;
+  for (int i = 0; i < numNewMessages; i++)
   {
-    checkEventMessages(ctx);
-    checkBotMessages(ctx);
+    telegramMessage &msg = bot.messages[i];
+
+    // handle only messages from trusted chats
+    if (!isTrustedChatId(msg.chat_id))
+    {
+      Serial.println("[bot] skipped message from untrusted party " + msg.from_name + " (" + String(msg.chat_id) + "): " + msg.text);
+      continue;
+    }
+    Serial.println("[bot] received message from " + msg.from_name + " (" + String(msg.chat_id) + "): " + msg.text);
     
-    vTaskDelay(BOT_PROCESS_DELAY / portTICK_RATE_MS);
+    // todo: skip too old messages
+    
+    if (msg.text == "/help")
+      answer = "Available commands: /start, /system, /temp, /hum, /light, /wpres";
+    else if (msg.text == "/start")
+      answer = "Ok, " + msg.from_name + ", let's start! Use /help to see all available commands.";
+    else if (msg.text == "/system")
+      answer = "Start time: " + ctx->systemInfo->startTimeStr + "\nWi-fi signal: " + ctx->systemInfo->getWifiStr() +
+        "\nUrl: " + ctx->systemInfo->serverUrl + "\nVersion: " + ctx->systemInfo->version;
+    else if (msg.text == "/temp")
+      answer = "Temperature: " + ctx->sensors->getTempStr();
+    else if (msg.text == "/hum")
+      answer = "Humidity: " + ctx->sensors->getHumStr();
+    else if (msg.text == "/light")
+      answer = "Light: " + ctx->sensors->getLightStr();
+    else if (msg.text == "/wpres")
+      answer = "Water pressure: " + ctx->sensors->getPresStr();
+    else
+      answer = "";
+
+    if (answer != "")
+    {
+      bot.sendMessage(msg.chat_id, answer, "Markdown");
+      Serial.println("[bot] sent answer to " + String(msg.chat_id) + ": " + answer);
+    }
   }
 }
 
@@ -66,14 +104,10 @@ void checkEventMessages(Context* ctx)
     }
         
     String botMsg = "";
-    if (event.eType == lowLight)
-      botMsg = "Low lightness";
-    else if (event.eType == normLight)
-      botMsg = "Normal lightness";
-    else if (event.eType == lowPressure)
-      botMsg = "Low pressure " + String(ctx->sensors->wPresBar, 1) + " bar";
+    if (event.eType == lowPressure)
+      botMsg = "Low pressure " + ctx->sensors->getPresStr();
     else if (event.eType == normPressure)
-      botMsg = "Normal pressure " + String(ctx->sensors->wPresBar, 1) + " bar";
+      botMsg = "Normal pressure " + ctx->sensors->getPresStr();
 
     if (botMsg != "")
     {
@@ -99,53 +133,15 @@ void checkBotMessages(Context* ctx)
   }
 }
 
-void handleNewMessages(int numNewMessages, Context* ctx)
+void botHandlerProcess(void* params)
 {
-  String answer;
-  for (int i = 0; i < numNewMessages; i++)
+  Context* ctx = (Context*)params;
+  
+  while (true)
   {
-    telegramMessage &msg = bot.messages[i];
-
-    // handle only messages from trusted chats
-    if (!isTrustedChatId(msg.chat_id))
-    {
-      Serial.println("[bot] skipped message from untrusted party " + msg.from_name + " (" + String(msg.chat_id) + "): " + msg.text);
-      continue;
-    }
-    Serial.println("[bot] received message from " + msg.from_name + " (" + String(msg.chat_id) + "): " + msg.text);
+    checkEventMessages(ctx);
+    checkBotMessages(ctx);
     
-    // todo: skip too old messages
-    
-    if (msg.text == "/help")
-      answer = "Available commands: /start, /system, /temp, /hum, /light, /wpres";
-    else if (msg.text == "/start")
-      answer = "Ok, " + msg.from_name + ", let's start! Use /help to see all available commands.";
-    else if (msg.text == "/system")
-      answer = "Start time: " + ctx->startTimeStr + "\nWi-fi signal: " + String(ctx->sensors->wifiRssi) +
-        " dBM\nSite: http://" + WiFi.localIP().toString();
-    else if (msg.text == "/temp")
-      answer = "Temperature: " + String(ctx->sensors->tempC, 1) + " C";
-    else if (msg.text == "/hum")
-      answer = "Humidity: " + String(ctx->sensors->humProc, 1) + " %";
-    else if (msg.text == "/light")
-      answer = "Lightness [0..4095]: " + String(ctx->sensors->ldrRawVal);
-    else if (msg.text == "/wpres")
-      answer = "Water pressure: " + String(ctx->sensors->wPresBar, 1) + " bar";
-    else
-      answer = "";
-
-    if (answer != "")
-    {
-      bot.sendMessage(msg.chat_id, answer, "Markdown");
-      Serial.println("[bot] sent answer to " + String(msg.chat_id) + ": " + answer);
-    }
+    vTaskDelay(BOT_PROCESS_DELAY / portTICK_RATE_MS);
   }
-}
-
-bool isTrustedChatId(String chatId)
-{
-  for (int i = 0; i < sizeof(trustedChatIds); i++)
-    if (trustedChatIds[i] == chatId)
-      return true;
-  return false;
 }

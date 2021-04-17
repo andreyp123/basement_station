@@ -6,9 +6,13 @@
 
 
 DHT_Unified dht(DHT_PIN, DHT_TYPE);
-int prevLdrRawVal = -1; // previous ldr value (for validation logic)
 float prevWPresBarVal = -1; // previous water pressure value (for validation logic)
 
+const int bucketSize = 10;
+AvgBucket tempBucket(bucketSize);
+AvgBucket humBucket(bucketSize);
+AvgBucket ldrValBucket(bucketSize);
+AvgBucket presBucket(bucketSize);
 
 void sensorsHandlerInit()
 {
@@ -44,96 +48,78 @@ float getWaterPressureBars(int rawVal)
   return 0.00409165 * rawVal - 0.47626841;
 }
 
+void validateWaterPressure(Context* ctx)
+{
+  float wPresBar = ctx->sensors->wPresBar;
+  
+  if (wPresBar < WPRES_LOW_THRESHOLD && prevWPresBarVal >= WPRES_LOW_THRESHOLD)
+  {
+    EventMessage eMsg(lowPressure);
+    xQueueSend(ctx->queue, &eMsg, 0);
+    Serial.println("[sens] prepared lowPressure event");
+  }
+  else if (wPresBar >= WPRES_NORM_THRESHOLD && prevWPresBarVal < WPRES_NORM_THRESHOLD && prevWPresBarVal != -1)
+  {
+    EventMessage eMsg(normPressure);
+    xQueueSend(ctx->queue, &eMsg, 0);
+    Serial.println("[sens] prepared normPressure event");
+  }
+  
+  prevWPresBarVal = wPresBar;
+}
+
 void sensorsHandlerProcess(void* params)
 {
   Context* ctx = (Context*)params;
-  Sensors* sens = ctx->sensors;
+  SensorsInfo* sens = ctx->sensors;
+  float avg = -1;
   
   while (true)
   {
-    Serial.println("[sens] reading sensors...");
-    
     // temperature
     sensors_event_t event;
     dht.temperature().getEvent(&event);
     if (!isnan(event.temperature))
-      sens->tempC = event.temperature;
+    {
+      if ((avg = tempBucket.addVal(event.temperature)) != -1)
+        sens->tempC = avg;
+    }
     else
       Serial.println("[sens] error reading temp");
     
     // humidity
     dht.humidity().getEvent(&event);
     if (!isnan(event.relative_humidity))
-      sens->humProc = event.relative_humidity;
+    {
+      if ((avg = humBucket.addVal(event.relative_humidity)) != -1)
+        sens->humProc = avg;
+    }
     else
       Serial.println("[sens] error reading hum");
 
-    // ldr
-    sens->ldrRawVal = analogRead(LDR_PIN);
+    // lightness
+    int rawVal = analogRead(LDR_PIN);
+    if ((avg = ldrValBucket.addVal(rawVal)) != -1)
+    {
+      sens->ldrRawVal = (int)avg;
+      sens->lightOn = sens->ldrRawVal >= LIGHT_ON_THRESHOLD;
+    }
 
     // water pressure
-    int rawVal = analogRead(WPRES_PIN);
-    sens->wPresRawVal = rawVal;
-    sens->wPresBar = getWaterPressureBars(rawVal);
+    rawVal = analogRead(WPRES_PIN);
+    if ((avg = presBucket.addVal(rawVal)) != -1)
+    {
+      sens->wPresRawVal = (int)avg;
+      sens->wPresBar = getWaterPressureBars(rawVal);
+      validateWaterPressure(ctx);
+    }
 
-    Serial.println("[sens] " + sens->toString());
-
-    // perform validations
-    //validateLight(ctx);
-    validateWaterPressure(ctx);
+    // log sensors (after filling bucket)
+    if (avg != -1)
+    {
+      Serial.println("[sens] " + sens->toString());
+    }
     
     vTaskDelay(SENS_PROCESS_DELAY / portTICK_RATE_MS);
   }
-}
-
-void validateLight(Context* ctx)
-{
-  int ldrRawVal = ctx->sensors->ldrRawVal;
-  
-  if (ldrRawVal < LDR_THRESHOLD)
-    {
-      if (prevLdrRawVal >= LDR_THRESHOLD)
-      {
-        EventMessage eMsg(lowLight);
-        xQueueSend(ctx->queue, &eMsg, 0);
-        Serial.println("[sens] prepared lowLight event");
-      }
-    }
-    else
-    {
-      if (prevLdrRawVal < LDR_THRESHOLD && prevLdrRawVal != -1)
-      {
-        EventMessage eMsg(normLight);
-        xQueueSend(ctx->queue, &eMsg, 0);
-        Serial.println("[sens] prepared normLight event");
-      }
-    }
-    
-    prevLdrRawVal = ldrRawVal;
-}
-
-void validateWaterPressure(Context* ctx)
-{
-  float wPresBar = ctx->sensors->wPresBar;
-  
-  if (wPresBar < WPRES_BAR_THRESHOLD)
-    {
-      if (prevWPresBarVal >= WPRES_BAR_THRESHOLD)
-      {
-        EventMessage eMsg(lowPressure);
-        xQueueSend(ctx->queue, &eMsg, 0);
-        Serial.println("[sens] prepared lowPressure event");
-      }
-    }
-    else
-    {
-      if (prevWPresBarVal < WPRES_BAR_THRESHOLD && prevWPresBarVal != -1)
-      {
-        EventMessage eMsg(normPressure);
-        xQueueSend(ctx->queue, &eMsg, 0);
-        Serial.println("[sens] prepared normPressure event");
-      }
-    }
-    
-    prevWPresBarVal = wPresBar;
 }

@@ -7,6 +7,7 @@
 #include "sensors_handler.h"
 #include "bot_handler.h"
 
+#define VERSION "0.3"
 #define SERIAL_SPEED 115200
 #define WIFI_CONNECTION_DELAY 500
 #define NTP_ADDR "pool.ntp.org"
@@ -54,7 +55,7 @@ void setup()
   time_t utcNow = initTime();
   
   sensorsHandlerInit();
-  webServerInit();
+  String url = webServerInit();
   botHandlerInit();
 
   QueueHandle_t queue = xQueueCreate(100, sizeof(EventMessage));
@@ -62,8 +63,9 @@ void setup()
   {
     Serial.println("[main] error creating queue");
   }
-
-  Context* context = new Context(utcNow, new Sensors(), queue);
+  SysterInfo* sysInfo = new SystemInfo(VERSION, utcNow, url);
+  SensorsInfo* sensors = new SensorsInfo();
+  Context* context = new Context(sysInfo, sensors, queue);
   
   xTaskCreate(sensorsHandlerProcess, "sensorsTask", 8172, context, 2, NULL);
   xTaskCreate(webServerProcess, "webServerTask", 2048, context, 1, NULL);

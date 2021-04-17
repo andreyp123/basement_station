@@ -9,11 +9,3 @@
 void botHandlerInit();
 
 void botHandlerProcess(void* params);
-
-void checkEventMessages(Context* ctx);
-
-void checkBotMessages(Context* ctx);
-
-void handleNewMessages(int numNewMessages, Context* ctx);
-
-bool isTrustedChatId(String chatId);

@@ -1,50 +1,85 @@
 #pragma once
 
-struct Sensors
+struct SystemImfo
 {
-  // system
+  String version;
+  time_t startTime;
+  String startTimeStr;
+  String serverUrl;
   long wifiRssi;
 
-  // external sensors
+  SystemInfo(String v, time_t t, String url)
+  {
+    version = v;
+    startTime = t;
+    serverUrl = url;
+
+    char strBuf[24];
+    strftime(strBuf, sizeof(strBuf), "%Y-%m-%d %H:%M:%S utc", localtime(&startTime));
+    startTimeStr = String(strBuf);
+  }
+
+  String getWifiStr()
+  {
+    return String(wifiRssi) + " dBm";
+  }
+}
+
+struct SensorsInfo
+{
   float tempC;
   float humProc;
   int ldrRawVal;
+  bool lightOn;
   int wPresRawVal;
   float wPresBar;
 
   String toString() const
   {
-    return "sensors: wifi=" + String(wifiRssi) + ", temp=" + String(tempC, 1) + ", hum=" + String(humProc, 1) +
-      ", ldr=" + String(ldrRawVal) + ", wpres_raw=" + String(wPresRawVal) + ", wpres_bar=" + String(wPresBar, 1);
+    return "sensors: temp=" + String(tempC, 2) + ", hum=" + String(humProc, 2) +
+      ", light=" + String(lightOn) + " (" + String(ldrRawVal) + "), wpres=" + String(wPresBar, 2) + " (" + String(wPresRawVal) + ")";
+  }
+
+  String getTempStr()
+  {
+    return String(tempC, 1) + " C";
+  }
+
+  String getHumStr()
+  {
+    return String(humProc, 1) + "%";
+  }
+
+  String getLightStr()
+  {
+    return lightOn ? "on" : "off";
+  }
+
+  String getPresStr()
+  {
+    return String(wPresBar, 1) + " bar";
   }
 };
 
 struct Context
 {
-  time_t startTime;
-  String startTimeStr;
-  Sensors* sensors;
+  SystemImfo* systemInfo;
+  SensorsInfo* sensors;
   QueueHandle_t queue;
 
-  Context(time_t t, Sensors* s, QueueHandle_t q)
+  Context(SystemInfo* i, SensorsInfo* s, QueueHandle_t q)
   {
-    startTime = t;
+    systemInfo = i;
     sensors = s;
     queue = q;
-
-    char strBuf[24];
-    strftime(strBuf, sizeof(strBuf), "%Y-%m-%d %H:%M:%S utc", localtime(&startTime));
-    startTimeStr = String(strBuf);
   }
 };
 
 enum EventType
 {
   undefined = 0,
-  lowLight = 1,
-  normLight = 2,
-  lowPressure = 3,
-  normPressure = 4
+  lowPressure = 1,
+  normPressure = 2
 };
 
 struct EventMessage
@@ -71,5 +106,24 @@ struct EventMessage
   String toString() const
   {
     return "event: type=" + String(eType) + ", timespan=" + String(timespan) + ", ttl=" + ttl;
+  }
+};
+
+struct AvgBucket
+{
+  int size;
+  float sum = 0;
+  int index = 0;
+
+  Bucket(int s)
+  {
+    size = s;
+  }
+  
+  float addVal(float val)
+  {
+    sum += val;
+    index = (index == size - 1) ? 0 : index + 1;
+    return (index == 0) ? sum / size : -1;
   }
 };
