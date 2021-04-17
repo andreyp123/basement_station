@@ -84,8 +84,8 @@ void sensorsHandlerProcess(void* params)
       if ((avg = tempBucket.addVal(event.temperature)) != -1)
         sens->tempC = avg;
     }
-    else
-      Serial.println("[sens] error reading temp");
+    else {}
+      //Serial.println("[sens] error reading temp");
     
     // humidity
     dht.humidity().getEvent(&event);
@@ -94,8 +94,8 @@ void sensorsHandlerProcess(void* params)
       if ((avg = humBucket.addVal(event.relative_humidity)) != -1)
         sens->humProc = avg;
     }
-    else
-      Serial.println("[sens] error reading hum");
+    else {}
+      //Serial.println("[sens] error reading hum");
 
     // lightness
     int rawVal = analogRead(LDR_PIN);

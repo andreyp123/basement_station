@@ -63,7 +63,7 @@ void setup()
   {
     Serial.println("[main] error creating queue");
   }
-  SysterInfo* sysInfo = new SystemInfo(VERSION, utcNow, url);
+  SystemInfo* sysInfo = new SystemInfo(VERSION, utcNow, url);
   SensorsInfo* sensors = new SensorsInfo();
   Context* context = new Context(sysInfo, sensors, queue);
   

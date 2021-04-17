@@ -1,6 +1,6 @@
 #pragma once
 
-struct SystemImfo
+struct SystemInfo
 {
   String version;
   time_t startTime;
@@ -23,7 +23,7 @@ struct SystemImfo
   {
     return String(wifiRssi) + " dBm";
   }
-}
+};
 
 struct SensorsInfo
 {
@@ -63,7 +63,7 @@ struct SensorsInfo
 
 struct Context
 {
-  SystemImfo* systemInfo;
+  SystemInfo* systemInfo;
   SensorsInfo* sensors;
   QueueHandle_t queue;
 
@@ -111,19 +111,26 @@ struct EventMessage
 
 struct AvgBucket
 {
-  int size;
+  const int size;
   float sum = 0;
   int index = 0;
 
-  Bucket(int s)
-  {
-    size = s;
-  }
+  AvgBucket(int s) : size(s) { }
   
   float addVal(float val)
   {
+    float avg = -1; // not ready
     sum += val;
-    index = (index == size - 1) ? 0 : index + 1;
-    return (index == 0) ? sum / size : -1;
+    if (index == size - 1)
+    {
+      avg = sum / size;
+      sum = 0;
+      index = 0;
+    }
+    else
+    {
+      index++;
+    }
+    return avg;
   }
 };

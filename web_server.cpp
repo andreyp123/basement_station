@@ -28,7 +28,7 @@ String getHtml(Context* ctx)
   html += "  <p>Temperature: " + ctx->sensors->getTempStr() + "</p>";
   html += "  <p>Humidity: " + ctx->sensors->getHumStr() + "</p>";
   html += "  <p>Water pressure: " + ctx->sensors->getPresStr() + "</p>";
-  html += "  <p>Lightness: " + ctx->sensors->getLightStr() + "</p><br/>";
+  html += "  <p>Light: " + ctx->sensors->getLightStr() + "</p><br/>";
   html += "  <p>Start time: " + ctx->systemInfo->startTimeStr + "</p>";
   html += "  <p>Wi-fi signal: " + ctx->systemInfo->getWifiStr() + "</p>";
   html += "  <p>Version: " + ctx->systemInfo->version + "</p>";

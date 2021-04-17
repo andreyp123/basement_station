@@ -11,7 +11,7 @@
 #define WPRES_LOW_THRESHOLD 2.0
 #define WPRES_NORM_THRESHOLD 2.1
 
-#define SENS_PROCESS_DELAY 100 // timeout between reading sensors data
+#define SENS_PROCESS_DELAY 300 // timeout between reading sensors data
 
 
 void sensorsHandlerInit();
