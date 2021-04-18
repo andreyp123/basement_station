@@ -7,7 +7,6 @@
 * move time out of ino setup (wifi handler ?)
 
 ## Hardware
-* LCD
 * 2nd water pressure sensor (before the water pump)
 * voltage detector in the pump circuit
 * button for LCD on/off?

@@ -8,7 +8,7 @@
 #include "sensors_handler.h"
 #include "bot_handler.h"
 
-#define VERSION "0.4"
+#define VERSION "0.5"
 #define SETUP_DELAY 2000
 #define SERIAL_SPEED 115200
 #define NTP_ADDR "pool.ntp.org"

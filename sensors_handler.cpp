@@ -1,18 +1,23 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
+#include <LiquidCrystal_I2C.h>
 #include "definitions.h"
 #include "sensors_handler.h"
 
 
 DHT_Unified dht(DHT_PIN, DHT_TYPE);
-float prevWPresBarVal = -1; // previous water pressure value (for validation logic)
+LiquidCrystal_I2C lcd(LCD_ADDR, LCD_COLS, LCD_ROWS);
 
 const int bucketSize = 10;
 AvgBucket tempBucket(bucketSize);
 AvgBucket humBucket(bucketSize);
 AvgBucket ldrValBucket(bucketSize);
 AvgBucket presBucket(bucketSize);
+
+float prevWPresBarVal = -1; // previous water pressure value (for validation logic)
+String prevLcdLine1 = "";
+String prevLcdLine2 = "";
 
 void sensorsHandlerInit()
 {
@@ -21,7 +26,6 @@ void sensorsHandlerInit()
   pinMode(LDR_PIN, INPUT);
 
   dht.begin();
-
   sensor_t sens;
   dht.temperature().getSensor(&sens);
   Serial.println("[sens] temp sensor=" + String(sens.name) + ", ver=" + String(sens.version) + ", id=" + String(sens.sensor_id) +
@@ -30,6 +34,10 @@ void sensorsHandlerInit()
   Serial.println("[sens] hum sensor=" + String(sens.name) + ", ver=" + String(sens.version) + ", id=" + String(sens.sensor_id) +
     ", maxVal=" + String(sens.max_value, 2) + ", minVal=" + String(sens.min_value, 2) + ", resolution=" + String(sens.resolution, 2));
   Serial.println("[sens] min delay: " + String(sens.min_delay / 1000) + "ms");
+
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
 }
 
 float getWaterPressureBars(int rawVal)
@@ -66,6 +74,25 @@ void validateWaterPressure(Context* ctx)
   }
   
   prevWPresBarVal = wPresBar;
+}
+
+void printToLcd(SensorsInfo* sens)
+{
+  String line1 = "T: " + String(sens->tempC, 1) + "  H: " + String(sens->humProc, 1);
+  String line2 = "P1: ---  P2: " + String(sens->wPresBar, 1);
+
+  if (line1 != prevLcdLine1 || line2 != prevLcdLine2)
+  {
+    Serial.println("[sens] printing to LCD. line1: " + line1 + "; line2: " + line2);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(line1);
+    lcd.setCursor(0, 1);
+    lcd.print(line2);
+  }
+
+  prevLcdLine1 = line1;
+  prevLcdLine2 = line2;
 }
 
 void sensorsHandlerProcess(void* params)
@@ -118,6 +145,7 @@ void sensorsHandlerProcess(void* params)
     if (avg != -1)
     {
       Serial.println("[sens] " + sens->toString());
+      printToLcd(sens);
     }
     
     vTaskDelay(SENS_PROCESS_DELAY / portTICK_RATE_MS);

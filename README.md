@@ -10,6 +10,8 @@ The station is placed in the house basement to measure:
 - water pressure before the pump (aka input pressure) -- TODO
 - water pump mode (on/off) -- TODO
 
+The station shows current measurements on the LCD screen.
+
 The station hosts web-server to retrieve simple web page containing current measurements.
 
 The station hosts telegram bot to
@@ -27,7 +29,7 @@ Sensors and modules:
 - Temperature/humidity DHT11
 - Water pressure HK1100C
 - LDR GL5516
-- LCD 1602A + I2C adapter -- TODO
+- LCD 1602A + I2C adapter
 
 Platforms and libraries:
 - Arduino IDE
@@ -37,3 +39,4 @@ Platforms and libraries:
 - Adafruit Unified Sensor (https://github.com/adafruit/Adafruit_Sensor)
 - DHT sensor library (https://github.com/adafruit/DHT-sensor-library)
 - Universal Telegram Bot (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
+- Liquid Crystal I2C (https://github.com/johnrickman/LiquidCrystal_I2C). Libraries Manager in Arduino IDE has older version, so the library is installed manually from github.
