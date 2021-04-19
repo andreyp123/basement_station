@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <time.h>
 #include "secrets.h"
 #include "wifi_handler.h"
 #include "web_server.h"
@@ -45,4 +46,18 @@ void initWiFi(bool initWebServer)
   {
     delay(WIFI_CONNECTION_DELAY);
   }
+}
+
+time_t initTime()
+{
+  Serial.println("[wifi] retrieving time...");
+  configTime(0, 0, NTP_ADDR); // get UTC time via NTP
+  time_t utcNow = time(nullptr);
+  while (utcNow < 24 * 3600)
+  {
+    delay(TIME_CHECKING_DELAY);
+    utcNow = time(nullptr);
+  }
+  Serial.println("[wifi] time: " + String(utcNow) + " -- " + String(ctime(&utcNow)));
+  return utcNow;
 }

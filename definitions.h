@@ -1,5 +1,7 @@
 #pragma once
 
+#include <time.h>
+
 struct SystemInfo
 {
   String version;
