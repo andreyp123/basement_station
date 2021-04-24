@@ -2,11 +2,13 @@
 #include "wifi_handler.h"
 #include "web_server.h"
 #include "sensors_handler.h"
-#include "bot_handler.h"
+#include "BotHandler.h"
 #include "LcdProxy.h"
 
-#define VERSION "0.7"
+#define VERSION "0.8"
 #define SETUP_DELAY 1000
+#define BTN_LCD_DELAY 20
+#define BOT_HANDLER_DELAY 1000
 #define SERIAL_SPEED 115200
 #define BTN_LCD_PIN 5
 
@@ -14,6 +16,7 @@
 Context* context;
 
 LcdProxy* lcd;
+BotHandler* bot;
 
 void setup()
 {
@@ -37,11 +40,23 @@ void setup()
   
   initWiFi(&webServerInit);
   sensorsHandlerInit();
-  botHandlerInit();
+  bot = new BotHandler(context);
+  bot->init();
   
   xTaskCreate(sensorsHandlerProcess, "sensorsTask", 8172, NULL, 2, NULL);
   xTaskCreate(webServerProcess, "webServerTask", 2048, NULL, 1, NULL);
   xTaskCreate(botHandlerProcess, "botTask", 8172, NULL, 3, NULL);
+}
+
+void botHandlerProcess(void* params)
+{
+  while (true)
+  {
+    bot->handleEvents();
+    bot->handleMessages();
+    
+    vTaskDelay(BOT_HANDLER_DELAY / portTICK_RATE_MS);
+  }
 }
 
 void loop()
@@ -57,5 +72,5 @@ void loop()
 
   lcd->printSensors(context->sensors);
   
-  vTaskDelay(20 / portTICK_RATE_MS);
+  vTaskDelay(BTN_LCD_DELAY / portTICK_RATE_MS);
 }

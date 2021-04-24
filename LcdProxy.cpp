@@ -1,22 +1,9 @@
 #include "LcdProxy.h"
 
-LcdProxy::LcdProxy()
-{
-  _lcd = new LiquidCrystal_I2C(LCD_ADDR, LCD_COLS, LCD_ROWS);
-  _init = false;
-  _enabled = false;
-  _prevLine1 = "";
-  _prevLine2 = "";
-}
-
-LcdProxy::~LcdProxy()
-{
-  delete _lcd;
-}
 
 void LcdProxy::init(bool enabled)
 {
-  _lcd->init();
+  _lcd.init();
   _init = true;
   if (enabled)
   {
@@ -26,7 +13,6 @@ void LcdProxy::init(bool enabled)
   {
     _enableMillis = -LCD_ENABLE_TIMEOUT;
   }
-  
 }
 
 void LcdProxy::enable()
@@ -36,8 +22,8 @@ void LcdProxy::enable()
 
   if (!_enabled)
   {
-    _lcd->display();
-    _lcd->backlight();
+    _lcd.display();
+    _lcd.backlight();
     _enabled = true;
   }
   _enableMillis = millis();
@@ -50,8 +36,8 @@ void LcdProxy::checkDisable()
   
   if (_enabled && millis() - _enableMillis > LCD_ENABLE_TIMEOUT)
   {
-    _lcd->noDisplay();
-    _lcd->noBacklight();
+    _lcd.noDisplay();
+    _lcd.noBacklight();
     _enabled = false;
   }
 }
@@ -63,11 +49,11 @@ void LcdProxy::print(String line1, String line2)
   
   if (line1 != _prevLine1 || line2 != _prevLine2)
   {
-    _lcd->clear();
-    _lcd->setCursor(0, 0);
-    _lcd->print(line1);
-    _lcd->setCursor(0, 1);
-    _lcd->print(line2);
+    _lcd.clear();
+    _lcd.setCursor(0, 0);
+    _lcd.print(line1);
+    _lcd.setCursor(0, 1);
+    _lcd.print(line2);
 
     _prevLine1 = line1;
     _prevLine2 = line2;
