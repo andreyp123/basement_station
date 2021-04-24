@@ -45,7 +45,7 @@ bool isTrustedChatId(String chatId)
   return false;
 }
 
-void handleNewMessages(int numNewMessages, Context* ctx)
+void handleNewMessages(int numNewMessages)
 {
   String answer;
   for (int i = 0; i < numNewMessages; i++)
@@ -67,16 +67,16 @@ void handleNewMessages(int numNewMessages, Context* ctx)
     else if (msg.text == "/start")
       answer = "Ok, " + msg.from_name + ", let's start! Use /help to see all available commands.";
     else if (msg.text == "/system")
-      answer = "Start time: " + ctx->systemInfo->startTimeStr + "\nWi-fi signal: " + ctx->systemInfo->getWifiStr() +
-        "\nUrl: " + ctx->systemInfo->serverUrl + "\nVersion: " + ctx->systemInfo->version;
+      answer = "Start time: " + context->systemInfo->startTimeStr + "\nWi-fi signal: " + context->systemInfo->getWifiStr() +
+        "\nUrl: " + context->systemInfo->serverUrl + "\nVersion: " + context->systemInfo->version;
     else if (msg.text == "/temp")
-      answer = "Temperature: " + ctx->sensors->getTempStr();
+      answer = "Temperature: " + context->sensors->getTempStr();
     else if (msg.text == "/hum")
-      answer = "Humidity: " + ctx->sensors->getHumStr();
+      answer = "Humidity: " + context->sensors->getHumStr();
     else if (msg.text == "/light")
-      answer = "Light: " + ctx->sensors->getLightStr();
+      answer = "Light: " + context->sensors->getLightStr();
     else if (msg.text == "/wpres")
-      answer = "Water pressure: " + ctx->sensors->getPresStr();
+      answer = "Water pressure: " + context->sensors->getPresStr();
     else
       answer = "";
 
@@ -88,10 +88,10 @@ void handleNewMessages(int numNewMessages, Context* ctx)
   }
 }
 
-void checkEventMessages(Context* ctx)
+void checkEventMessages()
 {
   EventMessage event;
-  while (xQueueReceive(ctx->queue, &event, 0) == pdPASS) // != errQUEUE_EMPTY
+  while (xQueueReceive(context->queue, &event, 0) == pdPASS) // != errQUEUE_EMPTY
   {
     Serial.println("[bot] " + event.toString());
         
@@ -105,9 +105,9 @@ void checkEventMessages(Context* ctx)
         
     String botMsg = "";
     if (event.eType == lowPressure)
-      botMsg = "Low pressure " + ctx->sensors->getPresStr();
+      botMsg = "Low pressure " + context->sensors->getPresStr();
     else if (event.eType == normPressure)
-      botMsg = "Normal pressure " + ctx->sensors->getPresStr();
+      botMsg = "Normal pressure " + context->sensors->getPresStr();
 
     if (botMsg != "")
     {
@@ -117,7 +117,7 @@ void checkEventMessages(Context* ctx)
   }
 }
 
-void checkBotMessages(Context* ctx)
+void checkBotMessages()
 {
   if (millis() - botLastTime > BOT_MTBS)
   {
@@ -125,7 +125,7 @@ void checkBotMessages(Context* ctx)
     while (numNewMessages)
     {
       Serial.println("[bot] new messages: " + String(numNewMessages));
-      handleNewMessages(numNewMessages, ctx);
+      handleNewMessages(numNewMessages);
       numNewMessages = bot.getUpdates(bot.last_message_received + 1);
     }
 
@@ -135,12 +135,10 @@ void checkBotMessages(Context* ctx)
 
 void botHandlerProcess(void* params)
 {
-  Context* ctx = (Context*)params;
-  
   while (true)
   {
-    checkEventMessages(ctx);
-    checkBotMessages(ctx);
+    checkEventMessages();
+    checkBotMessages();
     
     vTaskDelay(BOT_PROCESS_DELAY / portTICK_RATE_MS);
   }

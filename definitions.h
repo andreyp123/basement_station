@@ -10,11 +10,15 @@ struct SystemInfo
   String serverUrl;
   long wifiRssi;
 
-  SystemInfo(String v, time_t t)
+  SystemInfo(String v)
   {
     version = v;
-    startTime = t;
+  }
 
+  void setStartTime(time_t t)
+  {
+    startTime = t;
+    
     char strBuf[24];
     strftime(strBuf, sizeof(strBuf), "%Y-%m-%d %H:%M:%S utc", localtime(&startTime));
     startTimeStr = String(strBuf);
@@ -75,6 +79,7 @@ struct Context
     queue = q;
   }
 };
+extern Context* context;
 
 enum EventType
 {

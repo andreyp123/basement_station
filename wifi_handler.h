@@ -4,6 +4,4 @@
 #define NTP_ADDR "pool.ntp.org"
 #define TIME_CHECKING_DELAY 100
 
-void initWiFi(bool initWebServer);
-
-time_t initTime();
+void initWiFi(void (*initWebServerFuncPtr)());

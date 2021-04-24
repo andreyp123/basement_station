@@ -13,7 +13,7 @@ void webServerInit()
   server.begin();
 }
 
-String getHtml(Context* ctx)
+String getHtml()
 {
   String html = "<!DOCTYPE HTML>";
   html += "<html>";
@@ -24,13 +24,13 @@ String getHtml(Context* ctx)
   html += "</head>";
   html += "<body>";
   html += "  <h1>Basement station</h1>";
-  html += "  <p>Temperature: " + ctx->sensors->getTempStr() + "</p>";
-  html += "  <p>Humidity: " + ctx->sensors->getHumStr() + "</p>";
-  html += "  <p>Water pressure: " + ctx->sensors->getPresStr() + "</p>";
-  html += "  <p>Light: " + ctx->sensors->getLightStr() + "</p><br/>";
-  html += "  <p>Start time: " + ctx->systemInfo->startTimeStr + "</p>";
-  html += "  <p>Wi-fi signal: " + ctx->systemInfo->getWifiStr() + "</p>";
-  html += "  <p>Version: " + ctx->systemInfo->version + "</p>";
+  html += "  <p>Temperature: " + context->sensors->getTempStr() + "</p>";
+  html += "  <p>Humidity: " + context->sensors->getHumStr() + "</p>";
+  html += "  <p>Water pressure: " + context->sensors->getPresStr() + "</p>";
+  html += "  <p>Light: " + context->sensors->getLightStr() + "</p><br/>";
+  html += "  <p>Start time: " + context->systemInfo->startTimeStr + "</p>";
+  html += "  <p>Wi-fi signal: " + context->systemInfo->getWifiStr() + "</p>";
+  html += "  <p>Version: " + context->systemInfo->version + "</p>";
   html += "</body>";
   html += "</html>";
   return html;
@@ -38,8 +38,6 @@ String getHtml(Context* ctx)
 
 void webServerProcess(void* params)
 {
-  Context* ctx = (Context*)params;
-  
   while (true)
   {
     // waiting for incoming clients
@@ -72,7 +70,7 @@ void webServerProcess(void* params)
             client.println("Content-Type: text/html");
             client.println("Connection: close");
             client.println();
-            client.println(getHtml(ctx));
+            client.println(getHtml());
             break;
           }
         }
@@ -87,8 +85,8 @@ void webServerProcess(void* params)
       vTaskDelay(WEB_SERVER_PROCESS_DELAY / portTICK_RATE_MS);
     }
     //
-    ctx->systemInfo->wifiRssi = WiFi.RSSI();
-    ctx->systemInfo->serverUrl = getWebServerUrl();
+    context->systemInfo->wifiRssi = WiFi.RSSI();
+    context->systemInfo->serverUrl = getWebServerUrl();
   }
 }
 

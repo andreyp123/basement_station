@@ -49,20 +49,20 @@ float getWaterPressureBars(int rawVal)
   return 0.00409165 * rawVal - 0.47626841;
 }
 
-void validateWaterPressure(Context* ctx)
+void validateWaterPressure()
 {
-  float wPresBar = ctx->sensors->wPresBar;
+  float wPresBar = context->sensors->wPresBar;
   
   if (wPresBar < WPRES_LOW_THRESHOLD && prevWPresBarVal >= WPRES_LOW_THRESHOLD)
   {
     EventMessage eMsg(lowPressure);
-    xQueueSend(ctx->queue, &eMsg, 0);
+    xQueueSend(context->queue, &eMsg, 0);
     Serial.println("[sens] prepared lowPressure event");
   }
   else if (wPresBar >= WPRES_NORM_THRESHOLD && prevWPresBarVal < WPRES_NORM_THRESHOLD && prevWPresBarVal != -1)
   {
     EventMessage eMsg(normPressure);
-    xQueueSend(ctx->queue, &eMsg, 0);
+    xQueueSend(context->queue, &eMsg, 0);
     Serial.println("[sens] prepared normPressure event");
   }
   
@@ -71,8 +71,7 @@ void validateWaterPressure(Context* ctx)
 
 void sensorsHandlerProcess(void* params)
 {
-  Context* ctx = (Context*)params;
-  SensorsInfo* sens = ctx->sensors;
+  SensorsInfo* sens = context->sensors;
   float avg = -1;
   
   while (true)
@@ -112,7 +111,7 @@ void sensorsHandlerProcess(void* params)
     {
       sens->wPresRawVal = (int)avg;
       sens->wPresBar = getWaterPressureBars(rawVal);
-      validateWaterPressure(ctx);
+      validateWaterPressure();
     }
 
     // log sensors (after filling bucket)
