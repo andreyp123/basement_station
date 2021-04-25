@@ -20,7 +20,7 @@ struct SystemInfo
     startTime = t;
     
     char strBuf[24];
-    strftime(strBuf, sizeof(strBuf), "%Y-%m-%d %H:%M:%S utc", localtime(&startTime));
+    strftime(strBuf, sizeof(strBuf), "%Y-%m-%d %H:%M:%S", localtime(&startTime));
     startTimeStr = String(strBuf);
   }
 

@@ -10,14 +10,14 @@ void (*initWebServerFunc)(void);
 time_t initTime()
 {
   Serial.println("[wifi] retrieving time...");
-  configTime(0, 0, NTP_ADDR); // get UTC time via NTP
+  configTime(10800, 0, NTP_ADDR); // get UTC+3 time via NTP
   time_t utcNow = time(nullptr);
   while (utcNow < 24 * 3600)
   {
     delay(TIME_CHECKING_DELAY);
     utcNow = time(nullptr);
   }
-  Serial.println("[wifi] time: " + String(utcNow) + " -- " + String(ctime(&utcNow)));
+  Serial.println("[wifi] time: " + String(utcNow));
   return utcNow;
 }
 
