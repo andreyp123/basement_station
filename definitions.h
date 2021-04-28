@@ -79,7 +79,6 @@ struct Context
     queue = q;
   }
 };
-extern Context* context;
 
 enum EventType
 {

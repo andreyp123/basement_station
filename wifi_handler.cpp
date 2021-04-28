@@ -2,22 +2,26 @@
 #include <time.h>
 #include "definitions.h"
 #include "secrets.h"
+#include "WebServer.h"
 #include "wifi_handler.h"
 
 
-void (*initWebServerFunc)(void);
+WebServer* _webServer;
+Context* _context;
 
 time_t initTime()
 {
   Serial.println("[wifi] retrieving time...");
   configTime(10800, 0, NTP_ADDR); // get UTC+3 time via NTP
   time_t utcNow = time(nullptr);
-  while (utcNow < 24 * 3600)
+  int elapsedMsec = 0;
+  while (utcNow < 24 * 3600 || elapsedMsec < TIME_CHECKING_TIMEOUT)
   {
     delay(TIME_CHECKING_DELAY);
+    elapsedMsec += TIME_CHECKING_DELAY;
     utcNow = time(nullptr);
   }
-  Serial.println("[wifi] time: " + String(utcNow));
+  Serial.println("[wifi] time: " + String(utcNow) + " -- " + String(ctime(&utcNow)));
   return utcNow;
 }
 
@@ -33,21 +37,24 @@ void wiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
   
   // after connecting to AP and receiving IP address
   // - (re)init web server
-  initWebServerFunc();
+  _webServer->init();
   // - set time
-  context->systemInfo->setStartTime(initTime());
+  _context->systemInfo->setStartTime(initTime());
 }
 
 void wiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
   Serial.println("[wifi] disconnected from access point, reason: " + String(info.disconnected.reason));
+  _context->systemInfo->wifiRssi = 0;
+  
   Serial.println("[wifi] trying to reconnect...");
   WiFi.begin(SEC_WIFI_SSID, SEC_WIFI_PWD);
 }
 
-void initWiFi(void (*initWebServerFuncPtr)())
+void initWiFi(WebServer* webServer, Context* context)
 {
-  initWebServerFunc = initWebServerFuncPtr;
+  _webServer = webServer;
+  _context = context;
   
   WiFi.disconnect(true);
   

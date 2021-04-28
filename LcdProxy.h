@@ -30,8 +30,9 @@ public:
   {
   }
   void init(bool enabled);
-  void enable();
-  void checkDisable();
+  bool enable();
+  bool checkDisable();
   void print(String line1, String line2);
   void printSensors(SensorsInfo* sens);
+  void printSystemInfo(SystemInfo* sysInfo);
 };

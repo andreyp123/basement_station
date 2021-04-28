@@ -3,7 +3,8 @@
 ## Software
 * skip too old bot messages (skip all on start ?)
 * mqtt
-* rewrite with classes
+* support wifi without internet (unable to check time)
+* lcd: print system information
 
 ## Hardware
 * 2nd water pressure sensor (before the water pump)

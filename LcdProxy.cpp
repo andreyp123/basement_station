@@ -1,8 +1,11 @@
+#include <WiFi.h>
 #include "LcdProxy.h"
 
 
 void LcdProxy::init(bool enabled)
 {
+  Serial.println("[lcd] initializing lcd...");
+  
   _lcd.init();
   _init = true;
   if (enabled)
@@ -15,31 +18,39 @@ void LcdProxy::init(bool enabled)
   }
 }
 
-void LcdProxy::enable()
+bool LcdProxy::enable()
 {
   if (!_init)
-    return;
+    return false;
 
+  bool retVal = false;
   if (!_enabled)
   {
     _lcd.display();
     _lcd.backlight();
     _enabled = true;
+    Serial.println("[lcd] enabled");
+    retVal = true;
   }
   _enableMillis = millis();
+  return retVal;
 }
 
-void LcdProxy::checkDisable()
+bool LcdProxy::checkDisable()
 {
   if (!_init)
-    return;
-  
+    false;
+
+  bool retVal = false;
   if (_enabled && millis() - _enableMillis > LCD_ENABLE_TIMEOUT)
   {
     _lcd.noDisplay();
     _lcd.noBacklight();
     _enabled = false;
+    Serial.println("[lcd] disabled");
+    retVal = true;
   }
+  return retVal;
 }
 
 void LcdProxy::print(String line1, String line2)
@@ -54,6 +65,7 @@ void LcdProxy::print(String line1, String line2)
     _lcd.print(line1);
     _lcd.setCursor(0, 1);
     _lcd.print(line2);
+    Serial.println("[lcd] print line1: " + line1 + "; line2: " + line2);
 
     _prevLine1 = line1;
     _prevLine2 = line2;
@@ -67,5 +79,15 @@ void LcdProxy::printSensors(SensorsInfo* sens)
   
   String line1 = "T: " + String(sens->tempC, 1) + "  H: " + String(sens->humProc, 1);
   String line2 = "P1: ---  P2: " + String(sens->wPresBar, 1);
-  LcdProxy::print(line1, line2);  
+  LcdProxy::print(line1, line2);
+}
+
+void LcdProxy::printSystemInfo(SystemInfo* sysInfo)
+{
+  if (!_init)
+    return;
+  
+  String line1 = "WiFi: " + sysInfo->getWifiStr();
+  String line2 = "Ver: " + sysInfo->version;
+  LcdProxy::print(line1, line2);
 }
