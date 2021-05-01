@@ -3,7 +3,10 @@
 #include <LiquidCrystal_I2C.h>
 #include "definitions.h"
 
-
+/*
+ * Defines basic display (LCD) operations such as initializing, printing various information,
+ * enabling/disabling (display and backlight ON/OFF) and automatic disabling after period of time.
+ */
 class LcdProxy
 {
 private:
@@ -31,6 +34,7 @@ public:
   }
   void init(bool enabled);
   bool enable();
+  bool disable();
   bool checkDisable();
   void print(String line1, String line2);
   void printSensors(SensorsInfo* sens);

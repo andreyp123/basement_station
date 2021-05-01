@@ -4,7 +4,7 @@
 
 
 const String BotHandler::EVENT_CHAT_ID =
-  SEC_GROUP_CHAT_ID;
+  SEC_USER1_CHAT_ID;//SEC_GROUP_CHAT_ID;
 const String BotHandler::TRUSTED_CHAT_IDS[] =
   {
     SEC_GROUP_CHAT_ID,
@@ -50,9 +50,9 @@ void BotHandler::handleEvents()
         
     String botMsg = "";
     if (event.eType == lowPressure)
-      botMsg = "Low pressure " + _context->sensors->getPresStr();
+      botMsg = "Low pressure " + _context->sensors->getPres1Str() + " / " + _context->sensors->getPres2Str();
     else if (event.eType == normPressure)
-      botMsg = "Normal pressure " + _context->sensors->getPresStr();
+      botMsg = "Normal pressure " + _context->sensors->getPres1Str() + " / " + _context->sensors->getPres2Str();
 
     if (botMsg != "")
     {
@@ -107,7 +107,7 @@ void BotHandler::handleNewMessages(int numNewMessages)
         "\nUrl: " + _context->systemInfo->serverUrl + "\nVersion: " + _context->systemInfo->version;
     else if (msg.text == "/sensors")
       answer = "Temperature: " + _context->sensors->getTempStr() + "\nHumidity: " + _context->sensors->getHumStr() +
-        "\nLight: " + _context->sensors->getLightStr() + "\nWater pressure: " + _context->sensors->getPresStr();
+        "\nLight: " + _context->sensors->getLightStr() + "\nWater pressure: " + _context->sensors->getPres1Str() + " / " + _context->sensors->getPres2Str();
     else
       answer = "";
 

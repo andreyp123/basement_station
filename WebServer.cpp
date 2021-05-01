@@ -79,12 +79,15 @@ String WebServer::getHtml()
   html += "</head>";
   html += "<body>";
   html += "  <h1>Basement station</h1>";
+  html += "  <h2>Sensors</h2>";
   html += "  <p>Temperature: " + _context->sensors->getTempStr() + "</p>";
   html += "  <p>Humidity: " + _context->sensors->getHumStr() + "</p>";
-  html += "  <p>Water pressure: " + _context->sensors->getPresStr() + "</p>";
+  html += "  <p>Water pressure: " + _context->sensors->getPres1Str() + " / " + _context->sensors->getPres2Str() + "</p>";
   html += "  <p>Light: " + _context->sensors->getLightStr() + "</p><br/>";
+  html += "  <h2>System</h2>";
   html += "  <p>Start time: " + _context->systemInfo->startTimeStr + "</p>";
   html += "  <p>Wi-fi signal: " + _context->systemInfo->getWifiStr() + "</p>";
+  html += "  <p>Internet: " + _context->systemInfo->getInternet() + "</p>";
   html += "  <p>Version: " + _context->systemInfo->version + "</p>";
   html += "</body>";
   html += "</html>";

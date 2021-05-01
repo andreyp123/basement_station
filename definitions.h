@@ -9,10 +9,22 @@ struct SystemInfo
   String startTimeStr;
   String serverUrl;
   long wifiRssi;
+  bool internet;
 
-  SystemInfo(String v)
+  SystemInfo(String v):
+    version(v),
+    startTime(0),
+    startTimeStr(""),
+    serverUrl(""),
+    wifiRssi(0),
+    internet(false)
   {
-    version = v;
+  }
+
+  String toString() const
+  {
+    return "system: ver=" + version + ", time=" + startTimeStr + "/" + String(startTime) +
+      ", url=" + serverUrl + ", wifi=" + String(wifiRssi) + ", inet=" + String(internet);
   }
 
   void setStartTime(time_t t)
@@ -24,10 +36,8 @@ struct SystemInfo
     startTimeStr = String(strBuf);
   }
 
-  String getWifiStr()
-  {
-    return String(wifiRssi) + " dBm";
-  }
+  String getWifiStr() { return String(wifiRssi) + " dBm"; }
+  String getInternet() { return internet ? "on" : "off"; }
 };
 
 struct SensorsInfo
@@ -36,34 +46,24 @@ struct SensorsInfo
   float humProc;
   int ldrRawVal;
   bool lightOn;
-  int wPresRawVal;
-  float wPresBar;
+  int wPres1RawVal;
+  float wPres1Bar;
+  int wPres2RawVal;
+  float wPres2Bar;
 
   String toString() const
   {
     return "sensors: temp=" + String(tempC, 2) + ", hum=" + String(humProc, 2) +
-      ", light=" + String(lightOn) + " (" + String(ldrRawVal) + "), wpres=" + String(wPresBar, 2) + " (" + String(wPresRawVal) + ")";
+      ", light=" + String(lightOn) + "/" + String(ldrRawVal) +
+      ", wpres1=" + String(wPres1Bar, 2) + "/" + String(wPres1RawVal) +
+      ", wpres2=" + String(wPres2Bar, 2) + "/" + String(wPres2RawVal);
   }
 
-  String getTempStr()
-  {
-    return String(tempC, 1) + " C";
-  }
-
-  String getHumStr()
-  {
-    return String(humProc, 1) + "%";
-  }
-
-  String getLightStr()
-  {
-    return lightOn ? "on" : "off";
-  }
-
-  String getPresStr()
-  {
-    return String(wPresBar, 1) + " bar";
-  }
+  String getTempStr()  { return String(tempC, 1) + " C"; }
+  String getHumStr()   { return String(humProc, 1) + " %"; }
+  String getLightStr() { return lightOn ? "on" : "off"; }
+  String getPres1Str() { return String(wPres1Bar, 1) + " bar"; }
+  String getPres2Str()  { return String(wPres2Bar, 1) + " bar"; }
 };
 
 struct Context

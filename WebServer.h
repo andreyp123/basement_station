@@ -2,7 +2,9 @@
 
 #include <WiFi.h>
 
-
+/*
+ * Implements a web server processing http client requests and retrieving a simple web-page with various sensors information.
+ */
 class WebServer
 {
 private:

@@ -3,10 +3,9 @@
 #include "WebServer.h"
 #include "wifi_handler.h"
 #include "BotHandler.h"
-#include "LcdProxy.h"
-#include "LcdButton.h"
+#include "LcdWithButton.h"
 
-#define VERSION "0.10"
+#define VERSION "1.0"
 #define SERIAL_SPEED 115200
 #define SETUP_DELAY 1000
 #define LCD_BTN_DELAY 20
@@ -15,22 +14,11 @@
 #define WEB_SERVER_PROCESS_DELAY 500
 
 
-Context* context;
-LcdProxy* lcd;
-LcdButton* lcdBtn;
-
-
 void setup()
 {
   delay(SETUP_DELAY);
   Serial.begin(SERIAL_SPEED);
   Serial.println("[main] reboot");
-  
-  lcd = new LcdProxy();
-  lcd->init(true);
-  lcd->print("Starting...", "");
-  
-  lcdBtn = new LcdButton(lcd);
   
   QueueHandle_t queue = xQueueCreate(100, sizeof(EventMessage));
   if (queue == NULL)
@@ -39,8 +27,12 @@ void setup()
   }
   SystemInfo* sysInfo = new SystemInfo(VERSION);
   SensorsInfo* sensors = new SensorsInfo();
-  context = new Context(sysInfo, sensors, queue);
-
+  Context* context = new Context(sysInfo, sensors, queue);
+  
+  LcdWithButton* lcdWithBtn = new LcdWithButton(context);
+  lcdWithBtn->init(true);
+  lcdWithBtn->print("Starting...", "");
+  
   SensorsHandler* sensHandler = new SensorsHandler(context);
   sensHandler->init();
 
@@ -49,14 +41,14 @@ void setup()
   
   BotHandler* bot = new BotHandler(context);
   bot->init();
-  
-  xTaskCreatePinnedToCore(processSensorsHandler, "processSensorsHandler", 8172, sensHandler, 2, NULL, 0);
+
+  xTaskCreatePinnedToCore(processLcd, "processLcd", 2048, lcdWithBtn, 4, NULL, 1);
+  xTaskCreatePinnedToCore(processSensors, "processSensors", 8172, sensHandler, 2, NULL, 1);
   xTaskCreatePinnedToCore(processWebServer, "processWebServer", 2048, webServer, 1, NULL, 1);
-  xTaskCreatePinnedToCore(processBotHandler, "processBotHandler", 8172, bot, 3, NULL, 1);
-  xTaskCreatePinnedToCore(processLcdButton, "processLcdButton", 2048, NULL, 4, NULL, 1);
+  xTaskCreatePinnedToCore(processBot, "processBot", 8172, bot, 3, NULL, 1);
 }
 
-void processSensorsHandler(void* params)
+void processSensors(void* params)
 {
   SensorsHandler* sensHandler = (SensorsHandler*)params;
   while (true)
@@ -78,7 +70,7 @@ void processWebServer(void* params)
   }
 }
 
-void processBotHandler(void* params)
+void processBot(void* params)
 {
   BotHandler* bot = (BotHandler*)params;
   while (true)
@@ -89,12 +81,12 @@ void processBotHandler(void* params)
   }
 }
 
-void processLcdButton(void* params)
+void processLcd(void* params)
 {
+  LcdWithButton* lcdWithBtn = (LcdWithButton*)params;
   while (true)
   {
-    lcdBtn->process();
-    lcd->printSensors(context->sensors);
+    lcdWithBtn->process();
     vTaskDelay(LCD_BTN_DELAY / portTICK_RATE_MS);
   }
 }

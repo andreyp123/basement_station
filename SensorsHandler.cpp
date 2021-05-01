@@ -6,15 +6,19 @@
 
 
 const int SensorsHandler::LIGHT_ON_THRESHOLD = 15;
-const float SensorsHandler::WPRES_LOW_THRESHOLD = 2.0;
-const float SensorsHandler::WPRES_NORM_THRESHOLD = 2.1;
+const float SensorsHandler::WPRES1_LOW_THRESHOLD = 0.1;
+const float SensorsHandler::WPRES1_NORM_THRESHOLD = 0.6;
+const float SensorsHandler::WPRES2_LOW_THRESHOLD = 2.0;
+const float SensorsHandler::WPRES2_NORM_THRESHOLD = 2.1;
 
 void SensorsHandler::init()
 {
   Serial.println("[sens] initializing sensors...");
   pinMode(DHT_PIN, INPUT);
   pinMode(LDR_PIN, INPUT);
-  pinMode(WPRES_PIN, INPUT);
+  pinMode(WPRES1_PIN, INPUT);
+  pinMode(WPRES2_PIN, INPUT);
+  pinMode(WPRES_LED_PIN, OUTPUT);
 
   _dht.begin();
   sensor_t sens;
@@ -61,14 +65,29 @@ void SensorsHandler::process()
     sens->lightOn = sens->ldrRawVal >= LIGHT_ON_THRESHOLD;
   }
 
-  // water pressure
-  rawVal = analogRead(WPRES_PIN);
-  if ((avg = _presBucket.addVal(rawVal)) != -1)
+  // 1st water pressure
+  rawVal = analogRead(WPRES1_PIN);
+  if ((avg = _wPres1Bucket.addVal(rawVal)) != -1)
   {
-    sens->wPresRawVal = (int)avg;
-    sens->wPresBar = getWaterPressureBars(rawVal);
-    validateWaterPressure();
+    sens->wPres1RawVal = (int)avg;
+    sens->wPres1Bar = getWaterPressureBars(avg);
+    _wPres1Valid = true; //validateWaterPressure(sens->wPres1Bar, _prevWPres1Bar, WPRES1_LOW_THRESHOLD, WPRES1_NORM_THRESHOLD);
+    _prevWPres1Bar = sens->wPres1Bar;
   }
+
+  // 2nd water pressure
+  rawVal = analogRead(WPRES2_PIN);
+  if ((avg = _wPres2Bucket.addVal(rawVal)) != -1)
+  {
+    sens->wPres2RawVal = (int)avg;
+    sens->wPres2Bar = getWaterPressureBars(avg);
+    _wPres2Valid = validateWaterPressure(sens->wPres2Bar, _prevWPres2Bar, WPRES2_LOW_THRESHOLD, WPRES2_NORM_THRESHOLD);
+    _prevWPres2Bar = sens->wPres2Bar;
+  }
+
+  // led
+  bool ledOn = !_wPres1Valid || !_wPres2Valid;
+  digitalWrite(WPRES_LED_PIN, ledOn);
 
   // log sensors (after filling bucket)
   if (avg != -1)
@@ -77,7 +96,7 @@ void SensorsHandler::process()
   }
 }
 
-float SensorsHandler::getWaterPressureBars(int rawVal)
+float SensorsHandler::getWaterPressureBars(float rawVal)
 {
   /*
   The theory is the following:
@@ -89,26 +108,27 @@ float SensorsHandler::getWaterPressureBars(int rawVal)
   But for some reason, the theory does not fit the actual measurements.
   Magic numbers below are received empirically.
   */
-  
-  return 0.00409165 * rawVal - 0.47626841;
+
+  float retVal = 0.00409165 * rawVal - 0.47626841;
+  return retVal > 0 ? retVal : 0;
 }
 
-void SensorsHandler::validateWaterPressure()
+bool SensorsHandler::validateWaterPressure(float wPresBar, float prevWPresBar, float lowThreshold, float normThreshold)
 {
-  float wPresBar = _context->sensors->wPresBar;
+  bool retVal = wPresBar >= lowThreshold;
   
-  if (wPresBar < WPRES_LOW_THRESHOLD && _prevWPresBarVal >= WPRES_LOW_THRESHOLD)
+  if (wPresBar < lowThreshold && prevWPresBar >= lowThreshold)
   {
     EventMessage eMsg(lowPressure);
     xQueueSend(_context->queue, &eMsg, 0);
     Serial.println("[sens] prepared lowPressure event");
   }
-  else if (wPresBar >= WPRES_NORM_THRESHOLD && _prevWPresBarVal < WPRES_NORM_THRESHOLD && _prevWPresBarVal != -1)
+  else if (wPresBar >= normThreshold && prevWPresBar < normThreshold && prevWPresBar != -1)
   {
     EventMessage eMsg(normPressure);
     xQueueSend(_context->queue, &eMsg, 0);
     Serial.println("[sens] prepared normPressure event");
   }
-  
-  _prevWPresBarVal = wPresBar;
+
+  return retVal;
 }

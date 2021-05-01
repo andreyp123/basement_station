@@ -36,6 +36,23 @@ bool LcdProxy::enable()
   return retVal;
 }
 
+bool LcdProxy::disable()
+{
+  if (!_init)
+    return false;
+  
+  bool retVal = false;
+  if (_enabled)
+  {
+    _lcd.noDisplay();
+    _lcd.noBacklight();
+    _enabled = false;
+    Serial.println("[lcd] disabled");
+    retVal = true;
+  }
+  return retVal;
+}
+
 bool LcdProxy::checkDisable()
 {
   if (!_init)
@@ -44,11 +61,7 @@ bool LcdProxy::checkDisable()
   bool retVal = false;
   if (_enabled && millis() - _enableMillis > LCD_ENABLE_TIMEOUT)
   {
-    _lcd.noDisplay();
-    _lcd.noBacklight();
-    _enabled = false;
-    Serial.println("[lcd] disabled");
-    retVal = true;
+    retVal = disable();
   }
   return retVal;
 }
@@ -78,7 +91,7 @@ void LcdProxy::printSensors(SensorsInfo* sens)
     return;
   
   String line1 = "T: " + String(sens->tempC, 1) + "  H: " + String(sens->humProc, 1);
-  String line2 = "P1: ---  P2: " + String(sens->wPresBar, 1);
+  String line2 = "P1: " + String(sens->wPres1Bar, 1) + "  P2: " + String(sens->wPres2Bar, 1);
   LcdProxy::print(line1, line2);
 }
 
@@ -87,7 +100,8 @@ void LcdProxy::printSystemInfo(SystemInfo* sysInfo)
   if (!_init)
     return;
   
-  String line1 = "WiFi: " + sysInfo->getWifiStr();
-  String line2 = "Ver: " + sysInfo->version;
+  String line1 = "Internet: " + sysInfo->getInternet();
+  String line2 = "WiFi: " + sysInfo->getWifiStr();
+  
   LcdProxy::print(line1, line2);
 }

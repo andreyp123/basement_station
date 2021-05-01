@@ -5,7 +5,9 @@
 #include <UniversalTelegramBot.h>
 #include "secrets.h"
 
-
+/*
+ * Implements functionality for handling telegram bot messages and events.
+ */
 class BotHandler
 {
 private:
