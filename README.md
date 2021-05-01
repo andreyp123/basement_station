@@ -7,7 +7,7 @@ The station is placed in the house basement to measure:
 - humidity
 - lightness
 - water pressure after the pump (aka output pressure)
-- water pressure before the pump (aka input pressure) -- TODO
+- water pressure before the pump (aka input pressure)
 - water pump mode (on/off) -- TODO
 
 The station shows current measurements on the LCD screen.
@@ -30,6 +30,7 @@ Sensors and modules:
 - Water pressure HK1100C
 - LDR GL5516
 - LCD 1602A + I2C adapter
+- LED
 
 Platforms and libraries:
 - Arduino IDE
@@ -40,3 +41,4 @@ Platforms and libraries:
 - DHT sensor library (https://github.com/adafruit/DHT-sensor-library)
 - Universal Telegram Bot (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
 - Liquid Crystal I2C (https://github.com/johnrickman/LiquidCrystal_I2C). Libraries Manager in Arduino IDE has older version, so the library is installed manually from github.
+- ESP32 Ping (https://github.com/marian-craciunescu/ESP32Ping)
