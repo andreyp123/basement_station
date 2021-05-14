@@ -22,8 +22,8 @@ The station hosts MQTT client to send current measurements into smart home syste
 
 ## Technicat details
 
-The project is based on ESP32.
-Pin map: https://raw.githubusercontent.com/espressif/arduino-esp32/master/docs/esp32_pinmap.png
+The project is based on ESP32, 30 pin version.
+Pin map: https://raw.githubusercontent.com/AchimPieters/esp32-homekit-camera/master/Images/ESP32-30PIN-DEVBOARD.png
 
 Sensors and modules:
 - Temperature/humidity DHT11
@@ -45,6 +45,7 @@ Platforms and libraries:
 
 ## TODO
 
+- Wifi: calculate avg signal strength to avoid too quick value changes
 - Smart home system integration: send measurements to mqtt
 - Telegram bot: skip too old messages
 - Voltage detector in the pump circuit
