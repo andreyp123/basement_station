@@ -5,7 +5,7 @@
 #include "BotHandler.h"
 #include "LcdWithButton.h"
 
-#define VERSION "1.0"
+#define VERSION "1.1"
 #define SERIAL_SPEED 115200
 #define SETUP_DELAY 1000
 #define LCD_BTN_DELAY 20

@@ -4,7 +4,7 @@
 
 
 const String BotHandler::EVENT_CHAT_ID =
-  SEC_USER1_CHAT_ID;//SEC_GROUP_CHAT_ID;
+  SEC_GROUP_CHAT_ID;
 const String BotHandler::TRUSTED_CHAT_IDS[] =
   {
     SEC_GROUP_CHAT_ID,

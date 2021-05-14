@@ -2,12 +2,12 @@
 
 ## Description
 
-The station is placed in the house basement to measure:
+The station is placed in my house basement to measure:
 - temperature
 - humidity
 - lightness
-- water pressure after the pump (aka output pressure)
 - water pressure before the pump (aka input pressure)
+- water pressure after the pump (aka output pressure)
 - water pump mode (on/off) -- TODO
 
 The station shows current measurements on the LCD screen.
@@ -42,3 +42,9 @@ Platforms and libraries:
 - Universal Telegram Bot (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
 - Liquid Crystal I2C (https://github.com/johnrickman/LiquidCrystal_I2C). Libraries Manager in Arduino IDE has older version, so the library is installed manually from github.
 - ESP32 Ping (https://github.com/marian-craciunescu/ESP32Ping)
+
+## TODO
+
+- Smart home system integration: send measurements to mqtt
+- Telegram bot: skip too old messages
+- Voltage detector in the pump circuit
