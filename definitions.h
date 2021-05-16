@@ -139,3 +139,21 @@ struct AvgBucket
     return avg;
   }
 };
+
+struct CyclicCounter
+{
+  const int size;
+  int index = 0;
+
+  CyclicCounter(int s) : size(s) { }
+
+  bool Inc()
+  {
+    if (++index == size)
+    {
+      index = 0;
+      return true;
+    }
+    return false;
+  }
+};

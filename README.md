@@ -45,7 +45,6 @@ Platforms and libraries:
 
 ## TODO
 
-- Wifi: calculate avg signal strength to avoid too quick value changes
 - Smart home system integration: send measurements to mqtt
 - Add system metrics (cpu, mem) monitoring
 - Telegram bot: skip too old messages

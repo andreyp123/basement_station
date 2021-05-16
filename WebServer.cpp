@@ -21,8 +21,9 @@ bool WebServer::process()
   if (!_init)
     return false;
   
-  // waiting for incoming clients
   bool retVal = false;
+  
+  // waiting for incoming clients
   WiFiClient client = _server.available();
   if (client)
   {
@@ -63,8 +64,10 @@ bool WebServer::process()
     Serial.println("[web] client disconnected");
     retVal = true;
   }
-
-  _context->systemInfo->wifiRssi = WiFi.RSSI();
+  
+  if (_wifiCounter.Inc())
+    _context->systemInfo->wifiRssi = WiFi.RSSI();
+  
   return retVal;
 }
 
