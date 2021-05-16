@@ -8,8 +8,8 @@
 const int SensorsHandler::LIGHT_ON_THRESHOLD = 15;
 const float SensorsHandler::WPRES1_LOW_THRESHOLD = 0.1;
 const float SensorsHandler::WPRES1_NORM_THRESHOLD = 0.6;
-const float SensorsHandler::WPRES2_LOW_THRESHOLD = 2.0;
-const float SensorsHandler::WPRES2_NORM_THRESHOLD = 2.1;
+const float SensorsHandler::WPRES2_LOW_THRESHOLD = 2.3;
+const float SensorsHandler::WPRES2_NORM_THRESHOLD = 2.4;
 
 void SensorsHandler::init()
 {
