@@ -108,6 +108,8 @@ void BotHandler::handleNewMessages(int numNewMessages)
     else if (msg.text == "/sensors")
       answer = "Temperature: " + _context->sensors->getTempStr() + "\nHumidity: " + _context->sensors->getHumStr() +
         "\nLight: " + _context->sensors->getLightStr() + "\nWater pressure: " + _context->sensors->getPres1Str() + " / " + _context->sensors->getPres2Str();
+    else if (msg.text == "/sensors_dbg")
+      answer = _context->sensors->toString();
     else
       answer = "";
 

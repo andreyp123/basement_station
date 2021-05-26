@@ -1,3 +1,4 @@
+#include <math.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
@@ -116,18 +117,32 @@ float SensorsHandler::getWaterPressureBars(float rawVal)
 bool SensorsHandler::validateWaterPressure(float wPresBar, float prevWPresBar, float lowThreshold, float normThreshold)
 {
   bool retVal = wPresBar >= lowThreshold;
-  
-  if (wPresBar < lowThreshold && prevWPresBar >= lowThreshold)
+
+  // update actuality of the wpres event
+  if (fabs(millis() - _prevWPresEventTime) > WPRES_STATE_ACTUAL_TIME)
+  {
+    _prevWPresEvent = WPRES_UNDEF;
+    _prevWPresEventTime = millis();
+  }
+
+  // validate wpres and generate events:
+  // low pressure
+  if (wPresBar < lowThreshold && prevWPresBar >= lowThreshold && _prevWPresEvent != WPRES_LOW)
   {
     EventMessage eMsg(lowPressure);
     xQueueSend(_context->queue, &eMsg, 0);
     Serial.println("[sens] prepared lowPressure event");
+    _prevWPresEvent = WPRES_LOW;
+    _prevWPresEventTime = millis();
   }
-  else if (wPresBar >= normThreshold && prevWPresBar < normThreshold && prevWPresBar != -1)
+  // normal pressure
+  else if (wPresBar >= normThreshold && prevWPresBar < normThreshold && _prevWPresEvent != WPRES_NORM)
   {
     EventMessage eMsg(normPressure);
     xQueueSend(_context->queue, &eMsg, 0);
     Serial.println("[sens] prepared normPressure event");
+    _prevWPresEvent = WPRES_NORM;
+    _prevWPresEventTime = millis();
   }
 
   return retVal;

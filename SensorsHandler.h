@@ -18,6 +18,13 @@ private:
   static const uint8_t LDR_PIN = 33; // analog pin for light dependency resistor
   static const uint8_t WPRES1_PIN = 34; // analog pin for 1st water pressure sensor HK1100C
   static const uint8_t WPRES2_PIN = 35; // analog pin for 2nd water pressure sensor HK1100C
+
+  // water pressure state
+  static const int WPRES_UNDEF = -1;
+  static const int WPRES_LOW = 0;
+  static const int WPRES_NORM = 1;
+  // time (in millis) during wthich the water pressure state is actual
+  static const int WPRES_STATE_ACTUAL_TIME = 3600000; // 1 hour
   
   static const int BUCKET_SIZE = 10;
   static const int LIGHT_ON_THRESHOLD;
@@ -42,6 +49,9 @@ private:
   // defines if water pressure values are valid
   bool _wPres1Valid;
   bool _wPres2Valid;
+  // previous water pressure event
+  int _prevWPresEvent;
+  unsigned long _prevWPresEventTime;
 
   float getWaterPressureBars(float rawVal);
   bool validateWaterPressure(float wPresBar, float prevWPresBar, float lowThreshold, float normThreshold);
@@ -55,10 +65,12 @@ public:
     _ldrValBucket(BUCKET_SIZE),
     _wPres1Bucket(BUCKET_SIZE),
     _wPres2Bucket(BUCKET_SIZE),
-    _prevWPres1Bar(-1),
-    _prevWPres2Bar(-1),
+    _prevWPres1Bar(100),
+    _prevWPres2Bar(100),
     _wPres1Valid(true),
-    _wPres2Valid(true)
+    _wPres2Valid(true),
+    _prevWPresEvent(WPRES_UNDEF),
+    _prevWPresEventTime(0)
   {
   }
   void init();
